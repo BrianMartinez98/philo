@@ -1,51 +1,72 @@
-#include "philosophers.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rhiguita <rhiguita@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/02 00:53:27 by rhiguita          #+#    #+#             */
+/*   Updated: 2025/11/02 17:05:20 by rhiguita         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-static void	fork_assignation(t_data data)
+#include "philo.h"
+
+static int	init_mutex(t_sim *sim)
 {
 	int	i;
 
 	i = 0;
-	while (i < data->arguments)
+	while (i < sim->num_philos)
 	{
-		data->table->philos[i]->right_fork = data->table->forks[i];
-		if (i == 0)
-			data->table->philos[i]->left_fork = data->table->forks[data->arguments - 1];
-		else
-			data->table->philos[i]->left_fork = data->table->forks[i - 1];
+		if (pthread_mutex_init(&sim->forks[i], NULL) != 0)
+			return (display_error("Failed to initialize mutex fork"), 0);
 		i++;
 	}
+	if (pthread_mutex_init(&sim->write_mutex, NULL) != 0)
+		return (display_error("Failed to initialize mutex write"), 0);
+	if (pthread_mutex_init(&sim->sim_mutex, NULL) != 0)
+		return (display_error("Failed to initialize mutex simulation"), 0);
+	return (1);
 }
 
-static void	**create_array(t_data data, size_t size)
+static void	init_philos(t_sim *sim)
 {
-	void	**array;
-	int		i;
+	int	i;
 
 	i = 0;
-	array = ft_calloc(data->arguments[0], sizeof(void *))
-	if (!array)
-			handle_error(MALLOCERROR);
-	while (i < data->arguments[0])
+	while (i < sim->num_philos)
 	{
-		array[i] = ft_calloc(1, size);
-		if (!array[i])
-			handle_error(MALLOCERROR);
+		sim->philos[i].id = i + 1;
+		sim->philos[i].sim = sim;
+		sim->philos[i].meals_eating = 0;
+		sim->philos[i].last_meal_time = sim->start_time;
+		sim->philos[i].left_fork = &sim->forks[i];
+		if (i == sim->num_philos - 1)
+			sim->philos[i].right_fork = &sim->forks[0];
+		else
+			sim->philos[i].right_fork = &sim->forks[i + 1];
 		i++;
 	}
-	return (array);
 }
 
-void	init(t_data *data, char **argv)
+int	init_simulation(t_sim *sim)
 {
-	data = ft_calloc(1, sizeof(t_data));
-	if (!data)
-		handle_error(MALLOCERROR);
-	data->arg = argv;
-	parser(data);
-	data->table = ft_calloc(1, sizeof(t_table));
-	if (!data->table)
-		handle_error(MALLOCERROR);
-	data->table->philos = create_array(data, data->table->philo);
-	data->table->forks = create_array(data, data->table->fork);
-	fork_assignation(data);
+	sim->philos = malloc(sizeof(t_philo) * sim->num_philos);
+	if (!sim->philos)
+		return (display_error("Malloc failed for philosophers"), 0);
+	memset(sim->philos, 0, sizeof(t_philo) * sim->num_philos);
+	sim->forks = malloc(sizeof(pthread_mutex_t) * sim->num_philos);
+	if (!sim->forks)
+		return (free(sim->philos), display_error("Malloc failed for forks"),
+			0);
+	if (!init_mutex(sim))
+	{
+		free(sim->philos);
+		free(sim->forks);
+		return (0);
+	}
+	sim->start_time = get_current_time();
+	init_philos(sim);
+	return (1);
 }

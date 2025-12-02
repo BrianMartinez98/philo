@@ -1,49 +1,74 @@
-#include "philosophers.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rhiguita <rhiguita@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/27 17:32:50 by rhiguita          #+#    #+#             */
+/*   Updated: 2025/11/02 16:56:31 by rhiguita         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-static int	ft_atoi(const char *str)
+#include "philo.h"
+
+static int	check_args(t_sim *sim)
 {
-	int	i;
-	int	j;
-	int	result;
-	int	sign;
-
-	i = 0;
-	j = 0;
-	result = 0;
-	while (str[i] == ' ' || str[i] == '\t' || str[i] == '\n'
-		|| str[i] == '\v' || str[i] == '\f' || str[i] == '\r')
-		i++;
-	sign = 1;
-	if (str[i] == '-')
-	{
-		sign = -1;
-		i++;
-	}
-	else if (str[i] == '+')
-		i++;
-	while ((str[i] >= '0' && str[i] <= '9') && str[i] != '\0')
-	{
-		result = result * 10 + str[i] - '0';
-		i++;
-	}
-	return (result * sign);
+	if (sim->num_philos <= 0)
+		return (display_error("The number of philosophers should be > 0"), 0);
+	if (sim->time_to_die <= 0)
+		return (display_error("time_to_die should be > 0"), 0);
+	if (sim->time_to_eat <= 0)
+		return (display_error("time_to_eat should be > 0"), 0);
+	if (sim->time_to_sleep <= 0)
+		return (display_error("time_to_sleep should be > 0"), 0);
+	return (1);
 }
 
-void	parser(t_data data, char** argv[])
+static int	is_valid_number(const char *s)
 {
-    int i;
+	int	digit;
 
-    i = 1;
-	if (argc == 4)
+	digit = 0;
+	while (*s == ' ' || (*s >= 9 && *s <= 13))
+		s++;
+	if (*s == '+' || *s == '-')
+		s++;
+	while (*s)
 	{
-		while(argv[1][i++])
-			data->arguments = ft_atoi(split(argv[1][i], ' '));
+		if (*s >= '0' && *s <= '9')
+			digit = 1;
+		else
+			return (0);
+		s++;
 	}
-	if (argc == 5)
+	return (digit);
+}
+
+int	parse_args(t_sim *sim, int ac, char **av)
+{
+	int	i;
+
+	if (ac < 5 || ac > 6)
+		return (display_error("Incorrect number of arguments"), 0);
+	i = 1;
+	while (i < ac)
 	{
-		while(argv[1][i++])
-			data->arguments = ft_atoi(split(argv[1][i], ' '));
+		if (!is_valid_number(av[i]))
+			return (display_error("Argument contains invalid characters"), 0);
+		i++;
+	}
+	sim->num_philos = (int)ft_atol(av[1]);
+	sim->time_to_die = ft_atol(av[2]);
+	sim->time_to_eat = ft_atol(av[3]);
+	sim->time_to_sleep = ft_atol(av[4]);
+	if (ac == 6)
+	{
+		sim->num_meals_to_eat = (int)ft_atol(av[5]);
+		if (sim->num_meals_to_eat <= 0)
+			return (display_error("num_meals_to_eat must be > 0"), 0);
 	}
 	else
-		handle_error(PARAMETROS);
+		sim->num_meals_to_eat = -1;
+	return (check_args(sim));
 }
