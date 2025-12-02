@@ -1,54 +1,42 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rhiguita <rhiguita@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/02 00:53:45 by rhiguita          #+#    #+#             */
-/*   Updated: 2025/11/03 17:24:20 by rhiguita         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "philo.h"
 
-static void	cleanup(t_sim *sim)
+static void	cleanup(t_data *data)
 {
 	int	i;
 
-	if (!sim)
+	if (!data)
 		return ;
 	i = 0;
-	while (i < sim->num_philos && sim->forks)
+	while (i < data->num_philos && data->forks)
 	{
-		pthread_mutex_destroy(&sim->forks[i]);
+		pthread_mutex_destroy(&data->forks[i]);
 		i++;
 	}
-	pthread_mutex_destroy(&sim->write_mutex);
-	pthread_mutex_destroy(&sim->sim_mutex);
-	if (sim->philos)
-		free(sim->philos);
-	if (sim->forks)
-		free(sim->forks);
+	pthread_mutex_destroy(&data->write_mutex);
+	pthread_mutex_destroy(&data->sim_mutex);
+	if (data->philos)
+		free(data->philos);
+	if (data->forks)
+		free(data->forks);
 }
 
 int	main(int argc, char **argv)
 {
-	t_sim	sim;
+	t_data	data;
 
-	memset(&sim, 0, sizeof(t_sim));
-	if (!parse_args(&sim, argc, argv))
+	memset(&data, 0, sizeof(t_data));
+	if (!parse_args(&data, argc, argv))
 		return (1);
-	if (!init_simulation(&sim))
+	if (!init(&data))
 	{
-		cleanup(&sim);
+		cleanup(&data);
 		return (1);
 	}
-	if (!start_simulation(&sim))
+	if (!thread_creation(&data))
 	{
-		cleanup(&sim);
+		cleanup(&data);
 		return (1);
 	}
-	cleanup(&sim);
+	cleanup(&data);
 	return (0);
 }

@@ -7,8 +7,8 @@ SRC = 	actions.c\
 		main.c\
 		monitor.c\
 		parser.c\
-		simulation.c\
-		time.c\
+		routine.c\
+		timestamp.c\
 		utils.c
 
 OBJ = $(SRC:.c=.o)
