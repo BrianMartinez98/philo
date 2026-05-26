@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rhiguita <rhiguita@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: brimarti <brimarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/26 08:26:19 by rhiguita          #+#    #+#             */
-/*   Updated: 2025/11/02 02:16:46 by rhiguita         ###   ########.fr       */
+/*   Created: 2025/12/02 15:37:15 by brimarti          #+#    #+#             */
+/*   Updated: 2025/12/02 15:37:16 by brimarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ size_t	ft_strlen(char *s)
 	return (i);
 }
 
-void	display_error(char *message)
+void	handle_error(char *message)
 {
 	write(2, "Error: ", 7);
 	write(2, message, ft_strlen(message));
@@ -57,14 +57,14 @@ void	print_status(t_philo *philo, const char *status, int force_print)
 	long	timestam;
 	int		sim_ended;
 
-	pthread_mutex_lock(&philo->sim->write_mutex);
-	timestam = get_time_since(philo->sim->start_time);
-	pthread_mutex_lock(&philo->sim->sim_mutex);
-	sim_ended = philo->sim->simulation_should_end;
-	pthread_mutex_unlock(&philo->sim->sim_mutex);
+	pthread_mutex_lock(&philo->data->write_mutex);
+	timestam = get_time_since(philo->data->start_time);
+	pthread_mutex_lock(&philo->data->sim_mutex);
+	sim_ended = philo->data->simulation_should_end;
+	pthread_mutex_unlock(&philo->data->sim_mutex);
 	if (!sim_ended || force_print)
 	{
 		printf("%ld %d %s\n", timestam, philo->id, status);
 	}
-	pthread_mutex_unlock(&philo->sim->write_mutex);
+	pthread_mutex_unlock(&philo->data->write_mutex);
 }

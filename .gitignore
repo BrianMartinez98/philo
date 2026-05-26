@@ -1,0 +1,17 @@
+# Build artifacts
+philo
+*.o
+*.a
+
+# Debug files
+*.dSYM/
+*.out
+core
+
+# Editor / system files
+.vscode/
+.idea/
+.DS_Store
+
+# Test outputs
+*.log

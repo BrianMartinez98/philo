@@ -3,25 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rhiguita <rhiguita@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: brimarti <brimarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/27 17:32:50 by rhiguita          #+#    #+#             */
-/*   Updated: 2025/11/02 16:56:31 by rhiguita         ###   ########.fr       */
+/*   Created: 2025/12/02 15:37:06 by brimarti          #+#    #+#             */
+/*   Updated: 2025/12/02 15:37:07 by brimarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	check_args(t_sim *sim)
+static int	check_args(t_data *data)
 {
-	if (sim->num_philos <= 0)
-		return (display_error("The number of philosophers should be > 0"), 0);
-	if (sim->time_to_die <= 0)
-		return (display_error("time_to_die should be > 0"), 0);
-	if (sim->time_to_eat <= 0)
-		return (display_error("time_to_eat should be > 0"), 0);
-	if (sim->time_to_sleep <= 0)
-		return (display_error("time_to_sleep should be > 0"), 0);
+	if (data->num_philos <= 0)
+		return (handle_error("The number of philosophers should be > 0"), 0);
+	if (data->time_to_die <= 0)
+		return (handle_error("time_to_die should be > 0"), 0);
+	if (data->time_to_eat <= 0)
+		return (handle_error("time_to_eat should be > 0"), 0);
+	if (data->time_to_sleep <= 0)
+		return (handle_error("time_to_sleep should be > 0"), 0);
 	return (1);
 }
 
@@ -45,30 +45,30 @@ static int	is_valid_number(const char *s)
 	return (digit);
 }
 
-int	parse_args(t_sim *sim, int ac, char **av)
+int	parse_args(t_data *data, int agc, char **agv)
 {
 	int	i;
 
-	if (ac < 5 || ac > 6)
-		return (display_error("Incorrect number of arguments"), 0);
+	if (agc < 5 || agc > 6)
+		return (handle_error("Incorrect number of arguments"), 0);
 	i = 1;
-	while (i < ac)
+	while (i < agc)
 	{
-		if (!is_valid_number(av[i]))
-			return (display_error("Argument contains invalid characters"), 0);
+		if (!is_valid_number(agv[i]))
+			return (handle_error("Argument contains invalid characters"), 0);
 		i++;
 	}
-	sim->num_philos = (int)ft_atol(av[1]);
-	sim->time_to_die = ft_atol(av[2]);
-	sim->time_to_eat = ft_atol(av[3]);
-	sim->time_to_sleep = ft_atol(av[4]);
-	if (ac == 6)
+	data->num_philos = (int)ft_atol(agv[1]);
+	data->time_to_die = ft_atol(agv[2]);
+	data->time_to_eat = ft_atol(agv[3]);
+	data->time_to_sleep = ft_atol(agv[4]);
+	if (agc == 6)
 	{
-		sim->num_meals_to_eat = (int)ft_atol(av[5]);
-		if (sim->num_meals_to_eat <= 0)
-			return (display_error("num_meals_to_eat must be > 0"), 0);
+		data->num_meals_to_eat = (int)ft_atol(agv[5]);
+		if (data->num_meals_to_eat <= 0)
+			return (handle_error("num_meals_to_eat must be > 0"), 0);
 	}
 	else
-		sim->num_meals_to_eat = -1;
-	return (check_args(sim));
+		data->num_meals_to_eat = -1;
+	return (check_args(data));
 }

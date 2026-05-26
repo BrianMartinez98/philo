@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rhiguita <rhiguita@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: brimarti <brimarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/09 15:59:08 by rhiguita          #+#    #+#             */
-/*   Updated: 2025/11/02 02:16:21 by rhiguita         ###   ########.fr       */
+/*   Created: 2025/12/02 15:37:08 by brimarti          #+#    #+#             */
+/*   Updated: 2025/12/02 15:38:47 by brimarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 # include <sys/time.h>
 # include <unistd.h>
 
-// Estructura para los filosofos.
 typedef struct s_philo
 {
 	pthread_t		thread;
@@ -29,11 +28,10 @@ typedef struct s_philo
 	long			last_meal_time;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	struct s_sim	*sim;
-}					t_philo;
+	struct s_data	*data;
+}				t_philo;
 
-// Estructura para la simulacion.
-typedef struct s_sim
+typedef struct s_data
 {
 	int				num_philos;
 	int				num_meals_to_eat;
@@ -42,53 +40,42 @@ typedef struct s_sim
 	long			time_to_eat;
 	long			time_to_sleep;
 	long			start_time;
-
 	t_philo			*philos;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	write_mutex;
 	pthread_mutex_t	sim_mutex;
-
-}					t_sim;
-
-// time.c
-
-long				get_current_time(void);
-void				precise_usleep(long time_in_ms, t_sim *sim);
-long				get_time_since(long start_time);
+}				t_data;
 
 // utils.c
-
-void				print_status(t_philo *philo, const char *status,
-						int force_print);
-void				display_error(char *message);
-long				ft_atol(const char *str);
-size_t				ft_strlen(char *s);
+void	print_status(t_philo *philo, const char *status, int force_print);
+void	handle_error(char *message);
+long	ft_atol(const char *str);
+size_t	ft_strlen(char *s);
 
 // Parser.c
-
-int					parse_args(t_sim *sim, int ac, char **av);
+int		parse_args(t_data *data, int agc, char **agv);
 
 // init.c
-
-int					init_simulation(t_sim *sim);
+int		init(t_data *data);
 
 // main.c
+int		main(int ac, char **av);
 
-int					main(int ac, char **av);
-
-// Simulation.c
-
-void				*philo_routine(void *arg);
-int					start_simulation(t_sim *sim);
+// routine.c
+void	*routine(void *arg);
+int		thread_creation(t_data *data);
 
 // Monitor.c
+void	*monitoring(void *arg);
 
-void				*monitor_routine(void *arg);
+// timestamp.c
+long	get_current_time(void);
+void	precise_usleep(long time_in_ms, t_data *data);
+long	get_time_since(long start_time);
 
 // actions.c
-
-void				philo_eat(t_philo *philo);
-void				philo_sleep(t_philo *philo);
-void				philo_think(t_philo *philo);
+void	eat_philo(t_philo *philo);
+void	sleep_philo(t_philo *philo);
+void	think(t_philo *philo);
 
 #endif
